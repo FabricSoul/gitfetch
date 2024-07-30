@@ -1,0 +1,89 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "*.*.*"
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+  build-and-test:
+    needs: create-release
+    strategy:
+      matrix:
+        arch: [x86_64, i686, armv7, aarch64]
+        include:
+          - arch: x86_64
+            os: ubuntu-latest
+          - arch: i686
+            os: ubuntu-latest
+          - arch: armv7
+            os: ubuntu-latest
+          - arch: aarch64
+            os: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.arch }}-unknown-linux-gnu
+          override: true
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target ${{ matrix.arch }}-unknown-linux-gnu
+      - name: Test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --release --target ${{ matrix.arch }}-unknown-linux-gnu
+
+  update-package-files:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+      - name: Get checksum
+        id: get_checksum
+        run: |
+          curl -sL https://github.com/${{ github.repository }}/archive/${{ steps.get_version.outputs.VERSION }}.tar.gz | sha256sum | cut -d ' ' -f 1 > checksum.txt
+          echo ::set-output name=SHA256::$(cat checksum.txt)
+      - name: Update Homebrew formula
+        run: |
+          sed -i 's/version ".*"/version "${{ steps.get_version.outputs.VERSION }}"/' Formula/gitfetch.rb
+          sed -i 's/sha256 ".*"/sha256 "${{ steps.get_checksum.outputs.SHA256 }}"/' Formula/gitfetch.rb
+      - name: Update PKGBUILD
+        run: |
+          sed -i 's/pkgver=.*/pkgver=${{ steps.get_version.outputs.VERSION }}/' PKGBUILD
+          sed -i 's/sha256sums=(.*)/sha256sums=("${{ steps.get_checksum.outputs.SHA256 }}")/' PKGBUILD
+      - name: Generate .SRCINFO
+        run: |
+          sudo pacman -Sy --noconfirm pacman-contrib
+          makepkg --printsrcinfo > .SRCINFO
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add Formula/gitfetch.rb PKGBUILD .SRCINFO
+          git commit -m "Update package files to version ${{ steps.get_version.outputs.VERSION }}"
+          git push

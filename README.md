@@ -30,12 +30,19 @@ Gitfetch is a command-line information tool written in Rust, inspired by [Neofet
 ### Arch Linux
 
 ```bash
-sudo pacman -S gitfetch
+yay -S gitfetch
+```
+
+or
+
+```bash
+paru -S gitfetch
 ```
 
 ### Homebrew
 
 ```bash
+brew tap fabricsoul/gitfetch
 brew install gitfetch
 ```
 
