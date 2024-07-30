@@ -1,6 +1,7 @@
 # Gitfetch
 
 Gitfetch is a command-line information tool written in Rust, inspired by [Neofetch](https://github.com/dylanaraps/neofetch). It provides a visually appealing way to display Git contribution information.
+![Image](image.png)
 
 ## Table of Contents
 
