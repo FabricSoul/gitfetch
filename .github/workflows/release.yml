@@ -77,12 +77,32 @@ jobs:
           sed -i 's/sha256sums=(.*)/sha256sums=("${{ steps.get_checksum.outputs.SHA256 }}")/' PKGBUILD
       - name: Generate .SRCINFO
         run: |
-          sudo pacman -Sy --noconfirm pacman-contrib
-          makepkg --printsrcinfo > .SRCINFO
+          echo 'pkgbase = gitfetch' > .SRCINFO
+          echo "pkgver = ${{ steps.get_version.outputs.VERSION }}" >> .SRCINFO
+          echo "pkgrel = 1" >> .SRCINFO
+          echo "sha256sums = ${{ steps.get_checksum.outputs.SHA256 }}" >> .SRCINFO
+          # Add other necessary fields from PKGBUILD
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add Formula/gitfetch.rb PKGBUILD .SRCINFO
           git commit -m "Update package files to version ${{ steps.get_version.outputs.VERSION }}"
+          git push
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.AUR_KNOWN_HOSTS }}
+      - name: Push to AUR
+        env:
+          AUR_USERNAME: ${{ secrets.AUR_USERNAME }}
+        run: |
+          git clone ssh://aur@aur.archlinux.org/${AUR_USERNAME}/gitfetch.git aur-repo
+          cp PKGBUILD .SRCINFO aur-repo/
+          cd aur-repo
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add PKGBUILD .SRCINFO
+          git commit -m "Update to version ${{ steps.get_version.outputs.VERSION }}"
           git push
