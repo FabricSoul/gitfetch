@@ -16,8 +16,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
 
@@ -25,35 +25,31 @@ jobs:
     needs: create-release
     strategy:
       matrix:
-        arch: [x86_64, i686, armv7, aarch64]
-        include:
-          - arch: x86_64
-            os: ubuntu-latest
-          - arch: i686
-            os: ubuntu-latest
-          - arch: armv7
-            os: ubuntu-latest
-          - arch: aarch64
-            os: ubuntu-latest
-    runs-on: ${{ matrix.os }}
+        target: [x86_64-unknown-linux-gnu, aarch64-unknown-linux-gnu]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          target: ${{ matrix.arch }}-unknown-linux-gnu
           override: true
+          target: ${{ matrix.target }}
       - name: Build
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --target ${{ matrix.arch }}-unknown-linux-gnu
+          args: --release --target ${{ matrix.target }}
       - name: Test
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --release --target ${{ matrix.arch }}-unknown-linux-gnu
+          args: --release --target ${{ matrix.target }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: gitfetch-${{ matrix.target }}
+          path: target/${{ matrix.target }}/release/gitfetch
 
   update-package-files:
     needs: build-and-test
