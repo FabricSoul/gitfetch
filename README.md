@@ -7,6 +7,7 @@ Gitfetch is a command-line information tool written in Rust, inspired by [Neofet
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Configuration](#configuration)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
@@ -23,6 +24,18 @@ Gitfetch is a command-line information tool written in Rust, inspired by [Neofet
 ### Prerequisites
 
 - Git (optional, for global user detection)
+
+### Arch Linux
+
+```bash
+sudo pacman -S gitfetch
+```
+
+### Homebrew
+
+```bash
+brew install gitfetch
+```
 
 ### Installing from crates.io
 
@@ -58,6 +71,25 @@ Example:
 ```bash
 gitfetch -u FabricSoul -y 2023
 ```
+
+## Configuration
+
+Configuration path is `~/.config/gitfetch/config.toml`
+
+### \[graph_colors\]
+
+`level1`: "r,g,b"
+`level2`: "r,g,b"
+`level3`: "r,g,b"
+`level4`: "r,g,b"
+
+### \[text_colors\]
+
+`info_color`: "r,g,b"
+
+### \[graph_data\]
+
+`percentiles`: [usize,uszie,uszie,uszie]
 
 ## Roadmap
 
