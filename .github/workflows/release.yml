@@ -58,6 +58,7 @@ jobs:
   update-package-files:
     needs: build-and-test
     runs-on: ubuntu-latest
+    environment: release
     permissions:
       contents: write
     steps:
@@ -99,6 +100,7 @@ jobs:
         with:
           key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
           known_hosts: ${{ secrets.AUR_KNOWN_HOSTS }}
+          if_key_exists: replace
       - name: Push to AUR
         env:
           AUR_USERNAME: ${{ secrets.AUR_USERNAME }}
