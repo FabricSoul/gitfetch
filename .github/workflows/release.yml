@@ -3,21 +3,22 @@ on:
   push:
     tags:
       - "*.*.*"
+
 jobs:
   create-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
-          draft: false
-          prerelease: false
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          gh release create "$TAG" \
+            --title "Release $TAG" \
+            --generate-notes
   build-and-test:
     needs: create-release
     strategy:
@@ -25,7 +26,7 @@ jobs:
         target: [x86_64-unknown-linux-gnu, aarch64-unknown-linux-gnu]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -50,25 +51,27 @@ jobs:
           command: test
           args: --release --target ${{ matrix.target }}
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: gitfetch-${{ matrix.target }}
           path: target/${{ matrix.target }}/release/gitfetch
   update-package-files:
     needs: build-and-test
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Fetch all history for all branches and tags
+          fetch-depth: 0
       - name: Get version
         id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
       - name: Get checksum
         id: get_checksum
         run: |
           curl -sL https://github.com/${{ github.repository }}/archive/${{ steps.get_version.outputs.VERSION }}.tar.gz | sha256sum | cut -d ' ' -f 1 > checksum.txt
-          echo ::set-output name=SHA256::$(cat checksum.txt)
+          echo "SHA256=$(cat checksum.txt)" >> $GITHUB_OUTPUT
       - name: Update Homebrew formula
         run: |
           sed -i 's/version ".*"/version "${{ steps.get_version.outputs.VERSION }}"/' Formula/gitfetch.rb
@@ -90,7 +93,7 @@ jobs:
           git config --local user.name "GitHub Action"
           git add Formula/gitfetch.rb PKGBUILD .SRCINFO
           git commit -m "Update package files to version ${{ steps.get_version.outputs.VERSION }}"
-          git push origin HEAD:main  # Replace 'main' with your default branch if different
+          git push origin HEAD:main
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
