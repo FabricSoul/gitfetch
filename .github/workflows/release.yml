@@ -101,6 +101,10 @@ jobs:
           key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
           known_hosts: ${{ secrets.AUR_KNOWN_HOSTS }}
           if_key_exists: replace
+
+      - name: Add AUR host key
+        run: ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
+
       - name: Push to AUR
         env:
           AUR_USERNAME: ${{ secrets.AUR_USERNAME }}
