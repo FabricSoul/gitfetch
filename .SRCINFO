@@ -1,0 +1,4 @@
+pkgbase = gitfetch
+pkgver = 0.1.1
+pkgrel = 1
+sha256sums = f3c6fd92b87b310749ec140a689e47e6f00a05f2da710fd8dca9c359f63cc273

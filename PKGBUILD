@@ -9,7 +9,7 @@ license=('GPL3')
 depends=()
 makedepends=('rust' 'cargo')
 source=("$pkgname-$pkgver.tar.gz::https://github.com/FabricSoul/gitfetch/archive/$pkgver.tar.gz")
-sha256sums=('0') # This will be automatically updated by the GitHub Action
+sha256sums=("f3c6fd92b87b310749ec140a689e47e6f00a05f2da710fd8dca9c359f63cc273") # This will be automatically updated by the GitHub Action
 
 build() {
   cd "$pkgname-$pkgver"
