@@ -27,6 +27,18 @@ Gitfetch is a command-line information tool written in Rust, inspired by [Neofet
 
 - Git (optional, for global user detection)
 
+### Arch Linux
+
+```bash
+yay -S gitfetch
+```
+
+or
+
+```bash
+paru -S gitfetch
+```
+
 ### Installing from crates.io
 
 Install Gitfetch directly from crates.io using Cargo:
