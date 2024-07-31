@@ -59,6 +59,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # Fetch all history for all branches and tags
       - name: Get version
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
@@ -88,7 +90,7 @@ jobs:
           git config --local user.name "GitHub Action"
           git add Formula/gitfetch.rb PKGBUILD .SRCINFO
           git commit -m "Update package files to version ${{ steps.get_version.outputs.VERSION }}"
-          git push
+          git push origin HEAD:main  # Replace 'main' with your default branch if different
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
