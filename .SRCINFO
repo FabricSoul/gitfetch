@@ -1,4 +1,14 @@
 pkgbase = gitfetch
-pkgver = 0.1.1
-pkgrel = 1
-sha256sums = 7931778c658de43fa4d85864f4fb7ee22a32000cbbf95fc2a73d6f60721622d5
+	pkgdesc = A command-line tool to fetch and display Git contribution information
+	pkgver = 0.1.1
+	pkgrel = 1
+	url = https://github.com/FabricSoul/gitfetch
+	arch = x86_64
+	arch = aarch64
+	license = GPL3
+	makedepends = rust
+	makedepends = cargo
+	source = gitfetch-0.1.1.tar.gz::https://github.com/FabricSoul/gitfetch/archive/0.1.1.tar.gz
+	sha256sums = 7931778c658de43fa4d85864f4fb7ee22a32000cbbf95fc2a73d6f60721622d5
+
+pkgname = gitfetch
