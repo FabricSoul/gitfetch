@@ -2,7 +2,7 @@ class Gitfetch < Formula
   desc "A command-line tool to fetch and display Git contribution information"
   homepage "https://github.com/FabricSoul/gitfetch"
   url "https://github.com/FabricSoul/gitfetch/archive/0.1.1.tar.gz"
-  sha256 "ca30f159d6b2eb8829b06ad1a72f053dbbe456acf62d8407f7e8a038191547b5"
+  sha256 "7931778c658de43fa4d85864f4fb7ee22a32000cbbf95fc2a73d6f60721622d5"
   license "GPL-3.0"
 
   depends_on "rust" => :build
