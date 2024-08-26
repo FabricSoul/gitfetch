@@ -39,6 +39,13 @@ or
 paru -S gitfetch
 ```
 
+### MacOS
+
+```bash
+brew tap fabricsoul/gitfetch https://github.com/FabricSoul/gitfetch
+brew install gitfetch
+```
+
 ### Installing from crates.io
 
 Install Gitfetch directly from crates.io using Cargo:
